@@ -2,13 +2,13 @@
 Cookie Clicker Simulator
 """
 
-import simpleplot
+#import simpleplot
 
 # Used to increase the timeout, if necessary
-import codeskulptor
-codeskulptor.set_timeout(20)
+#import codeskulptor
+#codeskulptor.set_timeout(20)
 
-import poc_clicker_provided as provided
+#import poc_clicker_provided as provided
 
 # Constants
 SIM_TIME = 10000000000.0
@@ -19,13 +19,22 @@ class ClickerState:
     """
 
     def __init__(self):
-        pass
+        self.total_cookies = 0.0
+        self.current_cookies = 0.0
+        self.time = 0.0
+        self.cps = 0.0
+        self.history = [(self.time, None, 0.0, self.total_cookies)]
 
     def __str__(self):
         """
         Return human readable state
         """
-        return ""
+        state = "Total cookies: " += self.total_cookies \
+            += "\nCurrent cookies: " += self.current_cookies \
+            += "\nTime: " += self.time \
+            += "\nCps: " += self.cps
+
+        return state
 
     def get_cookies(self):
         """
@@ -34,7 +43,7 @@ class ClickerState:
 
         Should return a float
         """
-        return 0.0
+        return self.current_cookies
 
     def get_cps(self):
         """
@@ -42,7 +51,7 @@ class ClickerState:
 
         Should return a float
         """
-        return 0.0
+        return self.cps
 
     def get_time(self):
         """
@@ -50,7 +59,7 @@ class ClickerState:
 
         Should return a float
         """
-        return 0.0
+        return self.time
 
     def get_history(self):
         """
@@ -61,7 +70,7 @@ class ClickerState:
 
         For example: (0.0, None, 0.0, 0.0)
         """
-        return []
+        return self.history
 
     def time_until(self, cookies):
         """
