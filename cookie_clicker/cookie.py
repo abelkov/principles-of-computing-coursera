@@ -22,7 +22,7 @@ class ClickerState:
         self.total_cookies = 0.0
         self.current_cookies = 0.0
         self.time = 0.0
-        self.cps = 0.0
+        self.cps = 1.0
         self.history = [(self.time, None, 0.0, self.total_cookies)]
 
     def __str__(self):
@@ -79,7 +79,12 @@ class ClickerState:
 
         Should return a float with no fractional part
         """
-        return 0.0
+        if self.current_cookies >= cookies:
+            return 0.0
+
+        difference = (cookies - self.current_cookies)
+        seconds = difference / self.cps
+        return math.ceil(seconds)
 
     def wait(self, time):
         """
@@ -87,7 +92,12 @@ class ClickerState:
 
         Should do nothing if time <= 0
         """
-        pass
+        if time <= 0:
+            return
+
+        self.time += time
+        self.current_cookies += time * self.cps
+        self.total_cookies += time * self.cps
 
     def buy_item(self, item_name, cost, additional_cps):
         """
@@ -95,7 +105,12 @@ class ClickerState:
 
         Should do nothing if you cannot afford the item
         """
-        pass
+        if cost > self.current_cookies:
+            return
+
+        self.current_cookies -= cost
+        self.cps += additional_cps
+        self.history.append( (self.time, item_name, cost, self.total_cookies) )
 
 
 def simulate_clicker(build_info, duration, strategy):
