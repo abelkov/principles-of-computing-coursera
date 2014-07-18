@@ -3,6 +3,7 @@ Cookie Clicker Simulator
 """
 
 #import simpleplot
+import math
 
 # Used to increase the timeout, if necessary
 #import codeskulptor
@@ -29,10 +30,10 @@ class ClickerState:
         """
         Return human readable state
         """
-        state = "Total cookies: " += self.total_cookies \
-            += "\nCurrent cookies: " += self.current_cookies \
-            += "\nTime: " += self.time \
-            += "\nCps: " += self.cps
+        state = "Total cookies: " + str(self.total_cookies) \
+            + "\nCurrent cookies: " + str(self.current_cookies) \
+            + "\nTime: " + str(self.time) \
+            + "\nCps: " + str(self.cps)
 
         return state
 
@@ -180,6 +181,6 @@ def run():
     # run_strategy("Expensive", SIM_TIME, strategy_expensive)
     # run_strategy("Best", SIM_TIME, strategy_best)
 
-run()
+#run()
 
 
