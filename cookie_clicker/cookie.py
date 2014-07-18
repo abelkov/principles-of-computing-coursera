@@ -121,8 +121,32 @@ def simulate_clicker(build_info, duration, strategy):
     object corresponding to game.
     """
 
-    # Replace with your code
-    return ClickerState()
+    build = build_info.clone()
+    clicker = ClickerState()
+
+    while clicker.get_time() <= duration:
+        time_left = duration - clicker.get_time()
+        next_item = strategy(clicker.current_cookies, clicker.cps, time_left, build)
+
+        if next_item == None:
+            break
+
+        cost = build.get_cost(next_item)
+        time_needed = clicker.time_until(cost)
+
+        if time_needed > time_left:
+            break
+
+        clicker.wait(time_needed)
+        clicker.buy_item(next_item, cost, build.get_cps(next_item))
+        build.update_item(next_item)
+
+    time_left = duration - clicker.get_time()
+    if time_left > 0:
+        clicker.wait(time_left)
+
+    return clicker
+
 
 
 def strategy_cursor(cookies, cps, time_left, build_info):
