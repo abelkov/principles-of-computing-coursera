@@ -171,6 +171,9 @@ def strategy_none(cookies, cps, time_left, build_info):
 
 
 def strategy(f, cookies, cps, time_left, build_info):
+    """
+    A higher-order function that abstracts strategy_cheap and strategy_expensive functions.
+    """
 
     def criterion(shop):
         pairs = shop.items()
@@ -191,14 +194,23 @@ def strategy(f, cookies, cps, time_left, build_info):
     return choice[0]
 
 def strategy_cheap(cookies, cps, time_left, build_info):
+    """
+    Always return the cheapest item.
+    """
     return strategy(lambda new, old: new < old, cookies, cps, time_left, build_info)
 
 
 def strategy_expensive(cookies, cps, time_left, build_info):
+    """
+    Always return the most expensive item.
+    """
     return strategy(lambda new, old: new > old, cookies, cps, time_left, build_info)
 
 
 def strategy_best(cookies, cps, time_left, build_info):
+    """
+    This strategy function does its best to maximize total_cookies.
+    """
     return None
 
 
