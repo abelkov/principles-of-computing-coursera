@@ -192,7 +192,7 @@ def _strategy(compare, cookies, cps, time_left, build_info):
 
     for item in build_info.build_items():
         if could_spend >= build_info.get_cost(item):
-            shop.append( (item, roi) )
+            shop.append( (item, build_info.get_cost(item)) )
 
     if shop == []:
         return None
