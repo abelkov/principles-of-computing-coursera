@@ -24,7 +24,7 @@ class ClickerState:
         self._current_cookies = 0.0
         self._time = 0.0
         self._cps = 1.0
-        self.history = [(self._time, None, 0.0, self._total_cookies)]
+        self._history = [(self._time, None, 0.0, self._total_cookies)]
 
     def __str__(self):
         """
@@ -71,7 +71,7 @@ class ClickerState:
 
         For example: (0.0, None, 0.0, 0.0)
         """
-        return self.history
+        return self._history
 
     def time_until(self, cookies):
         """
@@ -111,7 +111,7 @@ class ClickerState:
 
         self._current_cookies -= cost
         self._cps += additional_cps
-        self.history.append( (self._time, item_name, cost, self._total_cookies) )
+        self._history.append( (self._time, item_name, cost, self._total_cookies) )
 
 
 def simulate_clicker(build_info, duration, strategy):
@@ -126,7 +126,7 @@ def simulate_clicker(build_info, duration, strategy):
 
     while clicker.get_time() <= duration:
         time_left = duration - clicker.get_time()
-        next_item = strategy(clicker._current_cookies, clicker.cps, time_left, build)
+        next_item = strategy(clicker.get_cookies(), clicker.get_cps(), time_left, build)
 
         if next_item == None:
             break
