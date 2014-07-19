@@ -176,21 +176,28 @@ def _strategy(compare, cookies, cps, time_left, build_info):
     """
 
     def criterion(shop):
-        pairs = shop.items()
-        choice = pairs[0]
+        """
+        Choose item based on compare function.
+        """
+        choice = shop[0]
 
-        for item, cost in pairs[1:]:
+        for item, cost in shop[1:]:
             if compare(cost, choice[1]):
                 choice = (item, cost)
 
         return choice
 
-    shop = {}
+    shop = []
+    could_spend = cookies + time_left * cps
+
     for item in build_info.build_items():
-        shop[item] = build_info.get_cost(item)
+        if could_spend >= build_info.get_cost(item):
+            shop.append( (item, roi) )
+
+    if shop == []:
+        return None
 
     choice = criterion(shop)
-
     return choice[0]
 
 def strategy_cheap(cookies, cps, time_left, build_info):
@@ -212,13 +219,17 @@ def strategy_best(cookies, cps, time_left, build_info):
     This strategy function does its best to maximize _total_cookies. The algorithm is obvious: for every item, compute its return on investment, and choose the one with the biggest roi.
     """
     shop = []
+    could_spend = cookies + time_left * cps
 
     for item in build_info.build_items():
-        roi = build_info.get_cps(item) / build_info.get_cost(item)
-        shop.append( (item, roi) )
+        if could_spend >= build_info.get_cost(item):
+            roi = build_info.get_cps(item) / build_info.get_cost(item)
+            shop.append( (item, roi) )
+
+    if shop == []:
+        return None
 
     shop.sort(key=lambda pair: pair[1], reverse=True)
-
     return shop[0][0]
 
 def run_strategy(strategy_name, time, strategy):
