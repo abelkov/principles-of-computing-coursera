@@ -6,10 +6,10 @@ Cookie Clicker Simulator
 import math
 
 # Used to increase the timeout, if necessary
-#import codeskulptor
-#codeskulptor.set_timeout(20)
+import codeskulptor
+codeskulptor.set_timeout(20)
 
-#import poc_clicker_provided as provided
+import poc_clicker_provided as provided
 
 # Constants
 SIM_TIME = 10000000000.0
@@ -148,7 +148,6 @@ def simulate_clicker(build_info, duration, strategy):
     return clicker
 
 
-
 def strategy_cursor(cookies, cps, time_left, build_info):
     """
     Always pick Cursor!
@@ -160,6 +159,7 @@ def strategy_cursor(cookies, cps, time_left, build_info):
     """
     return "Cursor"
 
+
 def strategy_none(cookies, cps, time_left, build_info):
     """
     Always return None
@@ -169,14 +169,38 @@ def strategy_none(cookies, cps, time_left, build_info):
     """
     return None
 
+
+def strategy(f, cookies, cps, time_left, build_info):
+
+    def criterion(shop):
+        pairs = shop.items()
+        choice = pairs[0]
+
+        for item, cost in pairs[1:]:
+            if f(cost, choice[1]):
+                choice = (item, cost)
+
+        return choice
+
+    shop = {}
+    for item in build_info.build_items():
+        shop[item] = build_info.get_cost(item)
+
+    choice = criterion(shop)
+
+    return choice[0]
+
 def strategy_cheap(cookies, cps, time_left, build_info):
-    return None
+    return strategy(lambda new, old: new < old, cookies, cps, time_left, build_info)
+
 
 def strategy_expensive(cookies, cps, time_left, build_info):
-    return None
+    return strategy(lambda new, old: new > old, cookies, cps, time_left, build_info)
+
 
 def strategy_best(cookies, cps, time_left, build_info):
     return None
+
 
 def run_strategy(strategy_name, time, strategy):
     """
@@ -198,13 +222,13 @@ def run():
     """
     Run the simulator.
     """
-    run_strategy("Cursor", SIM_TIME, strategy_cursor)
+    #run_strategy("Cursor", SIM_TIME, strategy_cursor)
 
     # Add calls to run_strategy to run additional strategies
-    # run_strategy("Cheap", SIM_TIME, strategy_cheap)
-    # run_strategy("Expensive", SIM_TIME, strategy_expensive)
+    run_strategy("Cheap", SIM_TIME, strategy_cheap)
+    run_strategy("Expensive", SIM_TIME, strategy_expensive)
     # run_strategy("Best", SIM_TIME, strategy_best)
 
-#run()
+run()
 
 
