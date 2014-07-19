@@ -20,20 +20,20 @@ class ClickerState:
     """
 
     def __init__(self):
-        self.total_cookies = 0.0
-        self.current_cookies = 0.0
-        self.time = 0.0
-        self.cps = 1.0
-        self.history = [(self.time, None, 0.0, self.total_cookies)]
+        self._total_cookies = 0.0
+        self._current_cookies = 0.0
+        self._time = 0.0
+        self._cps = 1.0
+        self.history = [(self._time, None, 0.0, self._total_cookies)]
 
     def __str__(self):
         """
         Return human readable state
         """
-        state = "Total cookies: " + str(self.total_cookies) \
-            + "\nCurrent cookies: " + str(self.current_cookies) \
-            + "\nTime: " + str(self.time) \
-            + "\nCps: " + str(self.cps)
+        state = "Total cookies: " + str(self._total_cookies) \
+            + "\nCurrent cookies: " + str(self._current_cookies) \
+            + "\nTime: " + str(self._time) \
+            + "\nCps: " + str(self._cps)
 
         return state
 
@@ -44,7 +44,7 @@ class ClickerState:
 
         Should return a float
         """
-        return self.current_cookies
+        return self._current_cookies
 
     def get_cps(self):
         """
@@ -52,7 +52,7 @@ class ClickerState:
 
         Should return a float
         """
-        return self.cps
+        return self._cps
 
     def get_time(self):
         """
@@ -60,7 +60,7 @@ class ClickerState:
 
         Should return a float
         """
-        return self.time
+        return self._time
 
     def get_history(self):
         """
@@ -80,11 +80,11 @@ class ClickerState:
 
         Should return a float with no fractional part
         """
-        if self.current_cookies >= cookies:
+        if self._current_cookies >= cookies:
             return 0.0
 
-        difference = (cookies - self.current_cookies)
-        seconds = difference / self.cps
+        difference = (cookies - self._current_cookies)
+        seconds = difference / self._cps
         return math.ceil(seconds)
 
     def wait(self, time):
@@ -96,9 +96,9 @@ class ClickerState:
         if time <= 0:
             return
 
-        self.time += time
-        self.current_cookies += time * self.cps
-        self.total_cookies += time * self.cps
+        self._time += time
+        self._current_cookies += time * self._cps
+        self._total_cookies += time * self._cps
 
     def buy_item(self, item_name, cost, additional_cps):
         """
@@ -106,12 +106,12 @@ class ClickerState:
 
         Should do nothing if you cannot afford the item
         """
-        if cost > self.current_cookies:
+        if cost > self._current_cookies:
             return
 
-        self.current_cookies -= cost
-        self.cps += additional_cps
-        self.history.append( (self.time, item_name, cost, self.total_cookies) )
+        self._current_cookies -= cost
+        self._cps += additional_cps
+        self.history.append( (self._time, item_name, cost, self._total_cookies) )
 
 
 def simulate_clicker(build_info, duration, strategy):
@@ -126,7 +126,7 @@ def simulate_clicker(build_info, duration, strategy):
 
     while clicker.get_time() <= duration:
         time_left = duration - clicker.get_time()
-        next_item = strategy(clicker.current_cookies, clicker.cps, time_left, build)
+        next_item = strategy(clicker._current_cookies, clicker.cps, time_left, build)
 
         if next_item == None:
             break
@@ -170,7 +170,7 @@ def strategy_none(cookies, cps, time_left, build_info):
     return None
 
 
-def strategy(f, cookies, cps, time_left, build_info):
+def _strategy(compare, cookies, cps, time_left, build_info):
     """
     A higher-order function that abstracts strategy_cheap and strategy_expensive functions.
     """
@@ -180,7 +180,7 @@ def strategy(f, cookies, cps, time_left, build_info):
         choice = pairs[0]
 
         for item, cost in pairs[1:]:
-            if f(cost, choice[1]):
+            if compare(cost, choice[1]):
                 choice = (item, cost)
 
         return choice
@@ -197,22 +197,29 @@ def strategy_cheap(cookies, cps, time_left, build_info):
     """
     Always return the cheapest item.
     """
-    return strategy(lambda new, old: new < old, cookies, cps, time_left, build_info)
+    return _strategy(lambda new, old: new < old, cookies, cps, time_left, build_info)
 
 
 def strategy_expensive(cookies, cps, time_left, build_info):
     """
     Always return the most expensive item.
     """
-    return strategy(lambda new, old: new > old, cookies, cps, time_left, build_info)
+    return _strategy(lambda new, old: new > old, cookies, cps, time_left, build_info)
 
 
 def strategy_best(cookies, cps, time_left, build_info):
     """
-    This strategy function does its best to maximize total_cookies.
+    This strategy function does its best to maximize _total_cookies. The algorithm is obvious: for every item, compute its return on investment, and choose the one with the biggest roi.
     """
-    return None
+    shop = []
 
+    for item in build_info.build_items():
+        roi = build_info.get_cps(item) / build_info.get_cost(item)
+        shop.append( (item, roi) )
+
+    shop.sort(key=lambda pair: pair[1], reverse=True)
+
+    return shop[0][0]
 
 def run_strategy(strategy_name, time, strategy):
     """
@@ -237,10 +244,10 @@ def run():
     #run_strategy("Cursor", SIM_TIME, strategy_cursor)
 
     # Add calls to run_strategy to run additional strategies
-    run_strategy("Cheap", SIM_TIME, strategy_cheap)
-    run_strategy("Expensive", SIM_TIME, strategy_expensive)
-    # run_strategy("Best", SIM_TIME, strategy_best)
+    #run_strategy("Cheap", SIM_TIME, strategy_cheap)
+    #run_strategy("Expensive", SIM_TIME, strategy_expensive)
+    #run_strategy("Best", SIM_TIME, strategy_best)
 
-run()
+#run()
 
 
